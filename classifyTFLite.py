@@ -68,27 +68,29 @@ def main():
             input_details = interpreter.get_input_details()
             output_details  = interpreter.get_output_details()
 
-            print("== Input details ==")
-            print("shape:", input_details[0]['shape'])
-            print("type:", input_details[0]['dtype'])
-            print("\n== Output details ==")
-            print("shape:", output_details[0]['shape'])
-            print("type:", output_details[0]['dtype'])
+            # print("== Input details ==")
+            # print("shape:", input_details[0]['shape'])
+            # print("type:", input_details[0]['dtype'])
+            # print("\n== Output details ==")
+            # print("shape:", output_details[0]['shape'])
+            # print("type:", output_details[0]['dtype'])
 
             # interpreter.resize_tensor_input(input_details[0]['index'], (32, 64, 128, 3))
             # interpreter.resize_tensor_input(output_details[0]['index'], (32, 63))
             interpreter.allocate_tensors()
 
-            print("== Input details ==")
-            print("shape:", input_details[0]['shape'])
-            print("type:", input_details[0]['dtype'])
-            print("\n== Output details ==")
-            print("shape:", output_details[0]['shape'])
-            print("type:", output_details[0]['dtype'])
+            # print("== Input details ==")
+            # print("shape:", input_details[0]['shape'])
+            # print("type:", input_details[0]['dtype'])
+            # print("\n== Output details ==")
+            # print("shape:", output_details[0]['shape'])
+            # print("type:", output_details[0]['dtype'])
 
             # model.compile(loss='categorical_crossentropy',
             #               optimizer=keras.optimizers.Adam(1e-3, amsgrad=True),
             #               metrics=['accuracy'])
+
+            i=0
 
             for x in os.listdir(args.captcha_dir):
                 # load image and preprocess it
@@ -104,14 +106,14 @@ def main():
 
                 arr = [] #numpy.array([])
 
-                for k in range(5):
-                    print("k is "+str(k))
+                for k in range(6):
+                    # print("k is "+str(k))
 
                     interpreter.invoke()
                     output_data_tflite = interpreter.get_tensor(output_details[k]['index'])
 
 
-                    print(output_data_tflite)
+                    # print(output_data_tflite)
                     # numpy.vstack((arr, numpy.array(output_data_tflite)))
 
                     arr.append(output_data_tflite)
@@ -122,8 +124,8 @@ def main():
 
                 # print(arr)
                 output_file.write(x + ", " + decode(captcha_symbols, arr) + "\n")
-
-                print('Classified ' + x)
+                i+=1
+                print(str(i)+'- Classified ' + x)
 
 if __name__ == '__main__':
     main()
