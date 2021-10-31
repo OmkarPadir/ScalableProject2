@@ -61,44 +61,49 @@ def main():
     print("Classifying captchas with symbol set {" + captcha_symbols + "}")
 
     # with tf.device('/cpu:0'):
+    file_arr=[]
+    results_arr=[]
+
+
+
+
+    interpreter=tflite.Interpreter(model_path=args.model_name)
+    interpreter.allocate_tensors()
+
+    input_details = interpreter.get_input_details()
+    output_details  = interpreter.get_output_details()
+
+    interpreter.allocate_tensors()
+
+    i=0
+
+    for x in os.listdir(args.captcha_dir):
+        # load image and preprocess it
+        raw_data = cv2.imread(os.path.join(args.captcha_dir, x))
+        rgb_data = cv2.cvtColor(raw_data, cv2.COLOR_BGR2RGB)
+        image = numpy.array(rgb_data,dtype=numpy.float32) / 255.0
+        # print(image)
+        (c, h, w) = image.shape
+        image = image.reshape([-1, c, h, w])
+        # prediction = model.predict(image)
+
+        interpreter.set_tensor(input_details[0]['index'], image)
+
+        arr = [] #numpy.array([])
+        interpreter.invoke()
+        for k in range(6):
+            output_data_tflite = interpreter.get_tensor(output_details[k]['index'])
+            arr.append(output_data_tflite)
+
+        file_arr.append(x)
+        results_arr.append(decode(captcha_symbols, arr))
+        i+=1
+
+
     with open(args.output, 'w') as output_file:
+        for i in range(len(file_arr)):
+            output_file.write(file_arr[i] + ", " + results_arr[i] + "\n")
 
-
-            interpreter=tflite.Interpreter(model_path=args.model_name)
-            interpreter.allocate_tensors()
-
-            input_details = interpreter.get_input_details()
-            output_details  = interpreter.get_output_details()
-
-            interpreter.allocate_tensors()
-
-            i=0
-
-            for x in os.listdir(args.captcha_dir):
-                # load image and preprocess it
-                raw_data = cv2.imread(os.path.join(args.captcha_dir, x))
-                rgb_data = cv2.cvtColor(raw_data, cv2.COLOR_BGR2RGB)
-                image = numpy.array(rgb_data,dtype=numpy.float32) / 255.0
-                # print(image)
-                (c, h, w) = image.shape
-                image = image.reshape([-1, c, h, w])
-                # prediction = model.predict(image)
-
-                interpreter.set_tensor(input_details[0]['index'], image)
-
-                arr = [] #numpy.array([])
-
-                for k in range(6):
-
-                    interpreter.invoke()
-                    output_data_tflite = interpreter.get_tensor(output_details[k]['index'])
-
-                    arr.append(output_data_tflite)
-
-
-                output_file.write(x + ", " + decode(captcha_symbols, arr) + "\n")
-                i+=1
-                # print(str(i)+'- Classified ' + x)
 
     print("End Time =", datetime.now().strftime("%H:%M:%S"))
     print("Total Time Taken (mins): ", (time.time() - start)/60)
