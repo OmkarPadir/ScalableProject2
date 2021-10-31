@@ -1,7 +1,8 @@
 import requests
 from datetime import datetime
 import time
-
+import shutil
+import os
 
 start = time.time()
 now = datetime.now()
@@ -13,13 +14,14 @@ print(response)
 
 with open("response.txt", "w") as f:
     f.write(response.text)
-#    print(f)
-
-#with open('response.txt') as resp_file:
-#    for line in resp_file:
-#        print (line)
 
 import csv
+
+Dir = "CaptchaTests2"
+if os.path.exists(Dir):
+    shutil.rmtree(Dir)
+
+os.mkdir(Dir)
 
 with open('response.txt') as csv_file:
     csv_reader = csv.reader(csv_file, delimiter=',')
@@ -30,13 +32,9 @@ with open('response.txt') as csv_file:
 
         response2 = requests.get("http://cs7ns1.scss.tcd.ie/index.php?download=noresume_speed&shortname=padiro&myfilename="+str(row[0]))
 
-        file = open("CaptchaTests2/"+str(row[0]), "wb")
+        file = open(Dir+"/"+str(row[0]), "wb")
         file.write(response2.content)
         file.close()
-
-       #with open("CaptchaTests/"+str(row[0]), "w") as f:
-         #   f.write(response2)
-    # print("Line Count: "+str(line_count))
 
 
 print("End Time =", datetime.now().strftime("%H:%M:%S"))
