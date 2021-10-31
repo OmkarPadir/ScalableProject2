@@ -1,8 +1,10 @@
 import requests
 from datetime import datetime
+import time
 
+
+start = time.time()
 now = datetime.now()
-
 current_time = now.strftime("%H:%M:%S")
 print("Start Time =", current_time)
 
@@ -28,7 +30,7 @@ with open('response.txt') as csv_file:
 
         response2 = requests.get("http://cs7ns1.scss.tcd.ie/index.php?download=noresume_speed&shortname=padiro&myfilename="+str(row[0]))
 
-        file = open("CaptchaTests/"+str(row[0]), "wb")
+        file = open("CaptchaTests2/"+str(row[0]), "wb")
         file.write(response2.content)
         file.close()
 
@@ -36,4 +38,6 @@ with open('response.txt') as csv_file:
          #   f.write(response2)
     # print("Line Count: "+str(line_count))
 
-print("End Time =", current_time)
+
+print("End Time =", datetime.now().strftime("%H:%M:%S"))
+print("Total Time Taken (mins): ", (time.time() - start)/60)
