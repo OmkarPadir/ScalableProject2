@@ -13,17 +13,24 @@ import argparse
 import tflite_runtime.interpreter as tflite
 #import tensorflow.keras as keras
 
+from datetime import datetime
+import time
+
+
+
+
 def decode(characters, y):
     y = numpy.argmax(numpy.array(y), axis=2)[:,0]
     return ''.join([characters[x] for x in y])
 
-def decode2(characters,li):
-    result = []
-    for char in li:
-        result.append(characters[char])
-    return "".join(result)
 
 def main():
+
+    start = time.time()
+    now = datetime.now()
+    current_time = now.strftime("%H:%M:%S")
+    print("Start Time =", current_time)
+
     parser = argparse.ArgumentParser()
     parser.add_argument('--model-name', help='Model name to use for classification', type=str)
     parser.add_argument('--captcha-dir', help='Where to read the captchas to break', type=str)
@@ -55,12 +62,7 @@ def main():
 
     # with tf.device('/cpu:0'):
     with open(args.output, 'w') as output_file:
-            # json_file = open(args.model_name+'.json', 'r')
-            # loaded_model_json = json_file.read()
-            # json_file.close()
 
-            # model = keras.models.model_from_json(loaded_model_json)
-            # model.load_weights(args.model_name+'.h5')
 
             interpreter=tflite.Interpreter(model_path=args.model_name)
             interpreter.allocate_tensors()
@@ -68,27 +70,7 @@ def main():
             input_details = interpreter.get_input_details()
             output_details  = interpreter.get_output_details()
 
-            # print("== Input details ==")
-            # print("shape:", input_details[0]['shape'])
-            # print("type:", input_details[0]['dtype'])
-            # print("\n== Output details ==")
-            # print("shape:", output_details[0]['shape'])
-            # print("type:", output_details[0]['dtype'])
-
-            # interpreter.resize_tensor_input(input_details[0]['index'], (32, 64, 128, 3))
-            # interpreter.resize_tensor_input(output_details[0]['index'], (32, 63))
             interpreter.allocate_tensors()
-
-            # print("== Input details ==")
-            # print("shape:", input_details[0]['shape'])
-            # print("type:", input_details[0]['dtype'])
-            # print("\n== Output details ==")
-            # print("shape:", output_details[0]['shape'])
-            # print("type:", output_details[0]['dtype'])
-
-            # model.compile(loss='categorical_crossentropy',
-            #               optimizer=keras.optimizers.Adam(1e-3, amsgrad=True),
-            #               metrics=['accuracy'])
 
             i=0
 
@@ -107,25 +89,19 @@ def main():
                 arr = [] #numpy.array([])
 
                 for k in range(6):
-                    # print("k is "+str(k))
 
                     interpreter.invoke()
                     output_data_tflite = interpreter.get_tensor(output_details[k]['index'])
 
-
-                    # print(output_data_tflite)
-                    # numpy.vstack((arr, numpy.array(output_data_tflite)))
-
                     arr.append(output_data_tflite)
 
-                # labels_indices = numpy.argmax(output_data_tflite, axis=2)
-                #
-                # decoded_label = [decode2(x) for x in labels_indices][0]
 
-                # print(arr)
                 output_file.write(x + ", " + decode(captcha_symbols, arr) + "\n")
                 i+=1
-                print(str(i)+'- Classified ' + x)
+                # print(str(i)+'- Classified ' + x)
+
+    print("End Time =", datetime.now().strftime("%H:%M:%S"))
+    print("Total Time Taken (mins): ", (time.time() - start)/60)
 
 if __name__ == '__main__':
     main()
