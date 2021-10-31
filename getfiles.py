@@ -1,4 +1,11 @@
 import requests
+from datetime import datetime
+
+now = datetime.now()
+
+current_time = now.strftime("%H:%M:%S")
+print("Start Time =", current_time)
+
 response = requests.get("http://cs7ns1.scss.tcd.ie/index.php?download=noresume_speed&shortname=padiro")
 print(response)
 
@@ -16,9 +23,8 @@ with open('response.txt') as csv_file:
     csv_reader = csv.reader(csv_file, delimiter=',')
     line_count = 0
     for row in csv_reader:
-        print(str(row[0]))
-        line_count = line_count+1
-#    print("Line COunt: "+str(line_count))
+        # print(str(row[0]))
+        # line_count = line_count+1
 
         response2 = requests.get("http://cs7ns1.scss.tcd.ie/index.php?download=noresume_speed&shortname=padiro&myfilename="+str(row[0]))
 
@@ -26,8 +32,8 @@ with open('response.txt') as csv_file:
         file.write(response2.content)
         file.close()
 
-
        #with open("CaptchaTests/"+str(row[0]), "w") as f:
          #   f.write(response2)
-    print("Line COunt: "+str(line_count))
+    # print("Line Count: "+str(line_count))
 
+print("End Time =", current_time)
